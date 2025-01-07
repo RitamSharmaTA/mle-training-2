@@ -1,0 +1,14 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+
+# Data
+*.csv
+*.dat
+
+# Environments
+.env
+.venv
+env/
+venv/
