@@ -1,8 +1,6 @@
 import os
 import tarfile
 
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.stats import randint
@@ -18,6 +16,12 @@ from sklearn.model_selection import (
     train_test_split,
 )
 from sklearn.tree import DecisionTreeRegressor
+
+# import matplotlib as mpl
+# import matplotlib.pyplot as plt
+
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
 
 DOWNLOAD_ROOT = "https://raw.githubusercontent.com/ageron/handson-ml/master/"
 HOUSING_PATH = os.path.join("datasets", "housing")
@@ -43,7 +47,9 @@ fetch_housing_data()
 housing = load_housing_data()
 
 
-train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
+train_set, test_set = train_test_split(
+    housing, test_size=0.2, random_state=42
+)
 
 
 housing["income_cat"] = pd.cut(
@@ -63,7 +69,9 @@ def income_cat_proportions(data):
     return data["income_cat"].value_counts() / len(data)
 
 
-train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
+train_set, test_set = train_test_split(
+    housing, test_size=0.2, random_state=42
+)
 
 
 compare_props = pd.DataFrame(
@@ -122,7 +130,7 @@ X = imputer.transform(housing_num)
 housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
 housing_tr["rooms_per_household"] = (
     housing_tr["total_rooms"] / housing_tr["households"]
-    )
+)
 housing_tr["bedrooms_per_room"] = (
     housing_tr["total_bedrooms"] / housing_tr["total_rooms"]
 )
@@ -183,7 +191,11 @@ param_grid = [
     # try 12 (3×4) combinations of hyperparameters
     {"n_estimators": [3, 10, 30], "max_features": [2, 4, 6, 8]},
     # then try 6 (2×3) combinations with bootstrap set as False
-    {"bootstrap": [False], "n_estimators": [3, 10], "max_features": [2, 3, 4]},
+    {
+        "bootstrap": [False],
+        "n_estimators": [3, 10],
+        "max_features": [2, 3, 4],
+    },
 ]
 
 
