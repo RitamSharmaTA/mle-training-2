@@ -14,4 +14,4 @@ datasets/
 .env
 .venv
 env/
-venv/
+venv/.vscode/
