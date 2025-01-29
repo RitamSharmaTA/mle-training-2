@@ -1,3 +1,27 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "housepred"
+version = "0.1.0"
+description = "A sample package for housing data analysis"
+authors = [
+    { name="ritam", email="ritam.sharma@tigeranalytics.com" }
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "joblib",
+    "six",
+]
+
+[project.scripts]
+ingest_data = "housepred.ingest_data:main"
+train = "housepred.train:cli"
+score = "housepred.score:cli"
+
 [tool.black]
 line-length = 88
 include = '\.pyi?$'
