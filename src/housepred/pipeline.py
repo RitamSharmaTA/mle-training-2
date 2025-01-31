@@ -20,15 +20,10 @@ def run_pipeline(input_path, model_path, output_path, model_type):
         print(f"Model path: {model_path}")
         print(f"Output path: {output_path}")
         print(f"Model type: {model_type}")
-        mlflow.end_run()
-        train_run = mlflow.start_run(run_name="model_training", nested=False)
-        with train_run:
+        with mlflow.start_run(run_name="model_training", nested=True):
             train_model(input_path, model_path, model_type)
 
-        # Model scoring
-        print("Starting model scoring...")
-        score_run = mlflow.start_run(run_name="model_scoring", nested=False)
-        with score_run:
+        with mlflow.start_run(run_name="model_scoring", nested=True):
             score_model(model_path, input_path, output_path)
 
 
