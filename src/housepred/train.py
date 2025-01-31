@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-
+import mlflow
 import joblib
 import numpy as np
 import pandas as pd
@@ -48,7 +48,7 @@ def train_model(input_path, output_path, model_type):
 
     logger.info("Loading data...")
     housing = pd.read_csv(input_path)
-
+    mlflow.log_param("dataset_size", len(housing))
     # Stratified split
     housing["income_cat"] = pd.cut(
         housing["median_income"],
@@ -80,25 +80,36 @@ def train_model(input_path, output_path, model_type):
         pd.get_dummies(housing_cat, drop_first=True)
     )
 
-    # Model selection
     if model_type == "linear":
         logger.info("Training Linear Regression model...")
         model = LinearRegression()
-        model.fit(housing_prepared, housing_labels)
+        mlflow.log_param("model_type", "linear")
     elif model_type == "tree":
         logger.info("Training Decision Tree model...")
         model = DecisionTreeRegressor(random_state=42)
-        model.fit(housing_prepared, housing_labels)
+        mlflow.log_param("model_type", "tree")
+        mlflow.log_param("random_state", 42)
     elif model_type == "forest":
         logger.info("Training Random Forest model...")
         model = RandomForestRegressor(random_state=42)
-        model.fit(housing_prepared, housing_labels)
+        mlflow.log_param("model_type", "forest")
+        mlflow.log_param("random_state", 42)
+        mlflow.log_param("n_estimators", model.n_estimators)
     else:
         raise ValueError(f"Unknown model type: {model_type}")
 
+    # Train model and log training metrics
+    model.fit(housing_prepared, housing_labels)
+    train_predictions = model.predict(housing_prepared)
+    train_mse = mean_squared_error(housing_labels, train_predictions)
+    train_rmse = np.sqrt(train_mse)
+    mlflow.log_metric("train_rmse", train_rmse)
+
+    # Save model
     logger.info("Saving model...")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     joblib.dump(model, output_path)
+    mlflow.log_artifact(output_path)
     logger.info(f"Model training completed. Model saved to {output_path}")
 
 

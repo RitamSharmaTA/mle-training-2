@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-
+import mlflow
 import joblib
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score, mean_absolute_error
 from sklearn.model_selection import (
     GridSearchCV,
     RandomizedSearchCV,
@@ -118,12 +119,18 @@ def score_model(model_path, data_path, output_path):
     mse = mean_squared_error(housing_labels, predictions)
     rmse = np.sqrt(mse)
     logger.info(f"Root Mean Squared Error: {rmse}")
+    mlflow.log_metric("test_rmse", rmse)
+    r2 = r2_score(housing_labels, predictions)
+    mae = mean_absolute_error(housing_labels, predictions)
+    mlflow.log_metric("test_r2", r2)
+    mlflow.log_metric("test_mae", mae)
 
     logger.info("Saving results...")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w") as f:
         f.write(f"Root Mean Squared Error: {rmse}\n")
     logger.info("Scoring completed.")
+    mlflow.log_artifact(output_path)
 
 
 def cli():
