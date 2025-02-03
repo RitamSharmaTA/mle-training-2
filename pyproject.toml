@@ -21,6 +21,7 @@ dependencies = [
 ingest_data = "housepred.ingest_data:main"
 train = "housepred.train:cli"
 score = "housepred.score:cli"
+pipeline = "housepred.pipeline:cli"
 
 [tool.black]
 line-length = 88
