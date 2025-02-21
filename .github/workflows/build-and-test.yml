@@ -6,7 +6,7 @@ on:
     branches:
       - main
       - feature/*
-      - enh/*
+      - enh/1/testing-python-code
   pull_request:
     branches:
       - main
