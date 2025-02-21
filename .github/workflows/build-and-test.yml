@@ -24,36 +24,30 @@ jobs:
           python-version: 3.8  # Matching one of your versions from __pycache__
 
       - name: Install Tree CLI
-        shell: bash -l -c
         run: sudo apt-get update && sudo apt-get install -y tree
 
       - name: Display directory structure before build
-        shell: bash -l -c
         run: |
           echo "Directory structure before build:"
           tree -L 3 .
 
       - name: Install build dependencies
-        shell: bash -l -c
-        run: conda install pip && pip install build wheel pytest
+        run: |
+          conda install pip
+          pip install build wheel pytest
 
       - name: Build package
-        shell: bash -l -c
         run: python -m build
 
       - name: Display directory structure after build
-        shell: bash -l -c
         run: |
           echo "Directory structure after build:"
           tree -L 3 .
 
       - name: Install package
-        shell: bash -l -c
-        run: |
-          pip install dist/*.whl
+        run: pip install dist/*.whl
 
       - name: Run tests
-        shell: bash -l -c
         run: python -m pytest tests/ -v
 
       - name: Archive build artifacts
