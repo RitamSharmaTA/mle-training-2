@@ -1,11 +1,15 @@
+---
 name: Build and Test Package
 
 on:
   push:
-    branches: [ main, feature/*, enh/* ]
+    branches:
+      - main
+      - feature/*
+      - enh/*
   pull_request:
-    branches: [ main ]
-
+    branches:
+      - main
 
 jobs:
   build:
@@ -21,7 +25,6 @@ jobs:
 
       - name: Install Tree CLI
         shell: bash -l -c
-
         run: sudo apt-get update && sudo apt-get install -y tree
 
       - name: Display directory structure before build
@@ -37,7 +40,6 @@ jobs:
       - name: Build package
         shell: bash -l -c
         run: python -m build
-        # This will create the dist/ directory with your package files
 
       - name: Display directory structure after build
         shell: bash -l -c
@@ -48,7 +50,6 @@ jobs:
       - name: Install package
         shell: bash -l -c
         run: |
-          # This will install the wheel file that was just created
           pip install dist/*.whl
 
       - name: Run tests
