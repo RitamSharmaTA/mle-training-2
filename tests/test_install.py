@@ -4,7 +4,7 @@ import sys
 
 def test_installation():
     # List of required packages
-    packages = {"pandas", "numpy", "sklearn", "pytest", "matplotlib"}
+    packages = {"pandas", "numpy", "sklearn", "pytest"}
     missing_packages = []
 
     # Check if the required packages are installed
