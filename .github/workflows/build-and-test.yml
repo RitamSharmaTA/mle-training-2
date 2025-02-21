@@ -1,0 +1,61 @@
+name: Build and Test Package
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: 3.8  # Matching one of your versions from __pycache__
+
+      - name: Install Tree CLI
+        shell: bash -l {0}
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Display directory structure before build
+        shell: bash -l {0}
+        run: |
+          echo "Directory structure before build:"
+          tree -L 3 .
+
+      - name: Install build dependencies
+        shell: bash -l {0}
+        run: conda install pip && pip install build wheel pytest
+
+      - name: Build package
+        shell: bash -l {0}
+        run: python -m build
+        # This will create the dist/ directory with your package files
+
+      - name: Display directory structure after build
+        shell: bash -l {0}
+        run: |
+          echo "Directory structure after build:"
+          tree -L 3 .
+
+      - name: Install package
+        shell: bash -l {0}
+        run: |
+          # This will install the wheel file that was just created
+          pip install dist/*.whl
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: python -m pytest tests/ -v
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: dist/
