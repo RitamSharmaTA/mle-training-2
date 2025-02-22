@@ -1,8 +1,9 @@
 import argparse
 import logging
 import os
-import mlflow
+
 import joblib
+import mlflow
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor

@@ -1,8 +1,10 @@
-import mlflow
 import argparse
 import logging
-from housepred.train import train_model
+
+import mlflow
+
 from housepred.score import score_model
+from housepred.train import train_model
 
 
 def run_pipeline(input_path, model_path, output_path, model_type):
