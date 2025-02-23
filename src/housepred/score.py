@@ -6,23 +6,15 @@ import joblib
 import mlflow
 import numpy as np
 import pandas as pd
-from scipy.stats import randint
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import (
-    GridSearchCV,
-    RandomizedSearchCV,
-    StratifiedShuffleSplit,
-    train_test_split,
-)
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import StratifiedShuffleSplit
 
 
 def preprocess_features(data, imputer=None):
     """
-    Preprocesses features for both training and test datasets, including feature engineering
+    Preprocesses features for both training and test datasets,
+      including feature engineering
     and imputation of missing values.
 
     Parameters
@@ -73,7 +65,8 @@ def score_model(model_path, data_path, output_path):
     Returns
     -------
     None
-        This function does not return anything; it saves the RMSE results to the output file.
+        This function does not return anything;
+        it saves the RMSE results to the output file.
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -91,9 +84,7 @@ def score_model(model_path, data_path, output_path):
     )
 
     split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-    for train_index, test_index in split.split(
-        housing, housing["income_cat"]
-    ):
+    for train_index, test_index in split.split(housing, housing["income_cat"]):
         strat_train_set = housing.loc[train_index]
         strat_test_set = housing.loc[test_index]
 
@@ -105,14 +96,10 @@ def score_model(model_path, data_path, output_path):
     housing_num = housing.drop("ocean_proximity", axis=1)
     imputer.fit(housing_num)
     X = imputer.transform(housing_num)
-    housing_tr = pd.DataFrame(
-        X, columns=housing_num.columns, index=housing.index
-    )
+    housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
 
     housing_cat = housing[["ocean_proximity"]]
-    housing_prepared = housing_tr.join(
-        pd.get_dummies(housing_cat, drop_first=True)
-    )
+    housing_prepared = housing_tr.join(pd.get_dummies(housing_cat, drop_first=True))
 
     logger.info("Scoring model...")
     predictions = model.predict(housing_prepared)
@@ -143,22 +130,17 @@ def cli():
     Returns
     -------
     None
-        This function does not return anything. It handles the command-line interface and
+        This function does not return anything.
+        It handles the command-line interface and
         invokes scoring logic.
     """
     parser = argparse.ArgumentParser(description="Score the model.")
-    parser.add_argument(
-        "--model-path", type=str, required=True, help="Model path"
-    )
-    parser.add_argument(
-        "--data-path", type=str, required=True, help="Dataset path"
-    )
+    parser.add_argument("--model-path", type=str, required=True, help="Model path")
+    parser.add_argument("--data-path", type=str, required=True, help="Dataset path")
     parser.add_argument(
         "--output-path", type=str, required=True, help="Output results path"
     )
-    parser.add_argument(
-        "--log-level", type=str, default="INFO", help="Log level"
-    )
+    parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     parser.add_argument("--log-path", type=str, help="Log file path")
     parser.add_argument(
         "--no-console-log", action="store_true", help="Toggle console logging"

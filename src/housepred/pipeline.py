@@ -17,7 +17,7 @@ def run_pipeline(input_path, model_path, output_path, model_type):
         mlflow.log_param("output_path", output_path)
         mlflow.log_param("model_type", model_type)
 
-        print(f"Starting pipeline with:")
+        print("Starting pipeline with:")
         print(f"Input path: {input_path}")
         print(f"Model path: {model_path}")
         print(f"Output path: {output_path}")
@@ -49,15 +49,11 @@ def cli():
         required=True,
         help="Type of model to train",
     )
-    parser.add_argument(
-        "--log-level", type=str, default="INFO", help="Log level"
-    )
+    parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
-    run_pipeline(
-        args.input_path, args.model_path, args.output_path, args.model_type
-    )
+    run_pipeline(args.input_path, args.model_path, args.output_path, args.model_type)
 
 
 if __name__ == "__main__":

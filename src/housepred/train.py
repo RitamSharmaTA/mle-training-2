@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
+from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.tree import DecisionTreeRegressor
 
 
@@ -18,8 +18,10 @@ def train_model(input_path, output_path, model_type):
     """
     Trains a machine learning model using a dataset and saves the trained model.
 
-    The function supports training three types of models: linear regression, decision tree,
-    and random forest. It performs a stratified split of the data, processes the features,
+    The function supports training three types of models:
+    linear regression, decision tree,
+    and random forest.
+    It performs a stratified split of the data, processes the features,
     and then trains the selected model.
 
     Parameters
@@ -37,7 +39,8 @@ def train_model(input_path, output_path, model_type):
     Returns
     -------
     None
-        This function does not return anything. It saves the trained model to the specified output path.
+        This function does not return anything.
+        It saves the trained model to the specified output path.
 
     Raises
     ------
@@ -58,9 +61,7 @@ def train_model(input_path, output_path, model_type):
     )
 
     split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-    for train_index, test_index in split.split(
-        housing, housing["income_cat"]
-    ):
+    for train_index, test_index in split.split(housing, housing["income_cat"]):
         strat_train_set = housing.loc[train_index]
         strat_test_set = housing.loc[test_index]
 
@@ -72,14 +73,10 @@ def train_model(input_path, output_path, model_type):
     housing_num = housing.drop("ocean_proximity", axis=1)
     imputer.fit(housing_num)
     X = imputer.transform(housing_num)
-    housing_tr = pd.DataFrame(
-        X, columns=housing_num.columns, index=housing.index
-    )
+    housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
 
     housing_cat = housing[["ocean_proximity"]]
-    housing_prepared = housing_tr.join(
-        pd.get_dummies(housing_cat, drop_first=True)
-    )
+    housing_prepared = housing_tr.join(pd.get_dummies(housing_cat, drop_first=True))
 
     if model_type == "linear":
         logger.info("Training Linear Regression model...")
@@ -128,7 +125,8 @@ def cli():
     Returns
     -------
     None
-        This function does not return anything. It orchestrates the command-line interface
+        This function does not return anything.
+        It orchestrates the command-line interface
         for model training.
     """
     parser = argparse.ArgumentParser(description="Train the model.")
@@ -145,9 +143,7 @@ def cli():
         required=True,
         help="Type of model to train: linear, tree, or forest",
     )
-    parser.add_argument(
-        "--log-level", type=str, default="INFO", help="Log level"
-    )
+    parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     parser.add_argument("--log-path", type=str, help="Log file path")
     parser.add_argument(
         "--no-console-log", action="store_true", help="Toggle console logging"

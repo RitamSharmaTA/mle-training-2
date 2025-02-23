@@ -56,7 +56,8 @@ def main(output_path="data"):  # Add default value
     Parameters
     ----------
     output_path : str, optional
-        The directory where the data should be saved and extracted. The default is "data".
+        The directory where the data should be saved and extracted.
+         The default is "data".
 
     Returns
     -------
@@ -67,24 +68,24 @@ def main(output_path="data"):  # Add default value
     logger = logging.getLogger(__name__)  # Fix the name reference
     logger.info("Fetching housing data...")
 
-    HOUSING_URL = "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.tgz"  # Add this URL
+    HOUSING_URL = (
+        "https://raw.githubusercontent.com/ageron/handson-ml2/master/"
+        "datasets/housing/housing.tgz"  # Add this URL
+    )
+
     fetch_housing_data(HOUSING_URL, output_path)  # Fix the function call
     logger.info("Data fetched successfully.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Ingest data for housing dataset."
-    )
+    parser = argparse.ArgumentParser(description="Ingest data for housing dataset.")
     parser.add_argument(
         "--output-path",
         type=str,
         default="data",
         help="Output folder/file path",
     )
-    parser.add_argument(
-        "--log-level", type=str, default="INFO", help="Log level"
-    )
+    parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     parser.add_argument("--log-path", type=str, help="Log file path")
     parser.add_argument(
         "--no-console-log", action="store_true", help="Toggle console logging"
