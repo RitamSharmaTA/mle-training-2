@@ -64,3 +64,26 @@ jobs:
         with:
           name: dist-files
           path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+      - name: Install package
+        run: pip install dist/*.whl
+
+      - name: Execute pipeline script
+        run: python -m housepred.pipeline --input-path data/housing.csv --model-path models/housepred.pkl --output-path results/predictions.txt --model-type linear
