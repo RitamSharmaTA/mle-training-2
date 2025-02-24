@@ -15,6 +15,7 @@ dependencies = [
     "scikit-learn",
     "joblib",
     "six",
+    "mlflow",
 ]
 
 [project.scripts]
