@@ -1,15 +1,18 @@
 import argparse
 import logging
+import os
 
 import mlflow
 
+from housepred.ingest_data import main as ingest_data  # Import the ingestion function
 from housepred.score import score_model
 from housepred.train import train_model
 
 
 def run_pipeline(input_path, model_path, output_path, model_type):
     """
-    Orchestrates the complete ML pipeline with MLflow tracking
+    Orchestrates the complete ML pipeline with MLflow tracking,
+    including data ingestion.
     """
     with mlflow.start_run(run_name="housepred_pipeline") as parent_run:
         mlflow.log_param("input_path", input_path)
@@ -22,9 +25,20 @@ def run_pipeline(input_path, model_path, output_path, model_type):
         print(f"Model path: {model_path}")
         print(f"Output path: {output_path}")
         print(f"Model type: {model_type}")
+
+        # ✅ Ingest Data Step
+        with mlflow.start_run(run_name="data_ingestion", nested=True):
+            if not os.path.exists(input_path):  # Only fetch if file is missing
+                print("Ingesting data...")
+                ingest_data(os.path.dirname(input_path))
+            else:
+                print("Data already exists, skipping ingestion.")
+
+        # ✅ Train Model Step
         with mlflow.start_run(run_name="model_training", nested=True):
             train_model(input_path, model_path, model_type)
 
+        # ✅ Score Model Step
         with mlflow.start_run(run_name="model_scoring", nested=True):
             score_model(model_path, input_path, output_path)
 
