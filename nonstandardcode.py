@@ -46,9 +46,7 @@ fetch_housing_data()
 housing = load_housing_data()
 
 
-train_set, test_set = train_test_split(
-    housing, test_size=0.2, random_state=42
-)
+train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
 
 
 housing["income_cat"] = pd.cut(
@@ -68,9 +66,7 @@ def income_cat_proportions(data):
     return data["income_cat"].value_counts() / len(data)
 
 
-train_set, test_set = train_test_split(
-    housing, test_size=0.2, random_state=42
-)
+train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
 
 
 compare_props = pd.DataFrame(
@@ -101,15 +97,9 @@ corr_matrix = housing_num.corr()
 
 corr_matrix["median_house_value"].sort_values(ascending=False)
 
-housing["rooms_per_household"] = (
-    housing["total_rooms"] / housing["households"]
-)
-housing["bedrooms_per_room"] = (
-    housing["total_bedrooms"] / housing["total_rooms"]
-)
-housing["population_per_household"] = (
-    housing["population"] / housing["households"]
-)
+housing["rooms_per_household"] = housing["total_rooms"] / housing["households"]
+housing["bedrooms_per_room"] = housing["total_bedrooms"] / housing["total_rooms"]
+housing["population_per_household"] = housing["population"] / housing["households"]
 
 
 housing = strat_train_set.drop(
@@ -127,9 +117,7 @@ X = imputer.transform(housing_num)
 
 
 housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
-housing_tr["rooms_per_household"] = (
-    housing_tr["total_rooms"] / housing_tr["households"]
-)
+housing_tr["rooms_per_household"] = housing_tr["total_rooms"] / housing_tr["households"]
 housing_tr["bedrooms_per_room"] = (
     housing_tr["total_bedrooms"] / housing_tr["total_rooms"]
 )
@@ -138,9 +126,7 @@ housing_tr["population_per_household"] = (
 )
 
 housing_cat = housing[["ocean_proximity"]]
-housing_prepared = housing_tr.join(
-    pd.get_dummies(housing_cat, drop_first=True)
-)
+housing_prepared = housing_tr.join(pd.get_dummies(housing_cat, drop_first=True))
 
 
 lin_reg = LinearRegression()
@@ -239,9 +225,7 @@ X_test_prepared["population_per_household"] = (
 )
 
 X_test_cat = X_test[["ocean_proximity"]]
-X_test_prepared = X_test_prepared.join(
-    pd.get_dummies(X_test_cat, drop_first=True)
-)
+X_test_prepared = X_test_prepared.join(pd.get_dummies(X_test_cat, drop_first=True))
 
 
 final_predictions = final_model.predict(X_test_prepared)
