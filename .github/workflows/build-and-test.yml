@@ -7,6 +7,7 @@ on:
       - feature/*
       - enh/1/testing-python-code
       - enh/3/refactor-code
+      - enh/5/unit-test
   pull_request:
     branches:
       - main
