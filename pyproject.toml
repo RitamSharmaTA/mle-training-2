@@ -16,6 +16,7 @@ dependencies = [
     "joblib",
     "six",
     "mlflow",
+    "pytest-mock",
 ]
 
 [project.scripts]
