@@ -8,12 +8,13 @@ on:
       - enh/1/testing-python-code
       - enh/3/refactor-code
       - enh/5/unit-test
+      - enh/7/modular
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,20 +23,21 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: 3.8  # Matching one of your versions from __pycache__
+          python-version: 3.8
 
       - name: Install Tree CLI
         run: sudo apt-get update && sudo apt-get install -y tree
 
-      - name: Display directory structure before build
+      - name: Display directory structure before installation
         run: |
-          echo "Directory structure before build:"
+          echo "Directory structure before installation:"
           tree -L 3 .
 
-      - name: Install dependencies
+      - name: Install package in dev mode
         run: |
           conda install pip
-          pip install build wheel pytest isort flake8 black
+          pip install -e .
+          pip install pytest isort flake8 black
 
       - name: Run isort check
         run: isort . --check --profile black
@@ -46,6 +48,28 @@ jobs:
       - name: Run Black check
         run: black . --check
 
+      - name: Run unit tests
+        run: python -m pytest tests/ -v
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: 3.8
+
+      - name: Install Tree CLI
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Install build dependencies
+        run: |
+          conda install pip
+          pip install build wheel pytest
+
       - name: Build package
         run: python -m build
 
@@ -54,11 +78,11 @@ jobs:
           echo "Directory structure after build:"
           tree -L 3 .
 
-      - name: Install package
+      - name: Install package from wheel
         run: pip install dist/*.whl
 
-      - name: Run tests
-        run: python -m pytest tests/ -v
+      - name: Run installation tests
+        run: python -m pytest tests/test_dependencies_install.py -v
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
@@ -86,5 +110,23 @@ jobs:
       - name: Install package
         run: pip install dist/*.whl
 
-      - name: Execute pipeline script
-        run: python -m housepred.pipeline --input-path data/housing.csv --model-path models/housepred.pkl --output-path results/predictions.txt --model-type linear
+      - name: Create data directory
+        run: mkdir -p data models results
+
+      - name: Run ingest_data.py help
+        run: python -m housepred.ingest_data --help
+
+      - name: Run ingest_data.py
+        run: python -m housepred.ingest_data --output-path data
+
+      - name: Run train.py help
+        run: python -m housepred.train --help
+
+      - name: Run train.py
+        run: python -m housepred.train --input-path data/housing.csv --output-path models/housepred.pkl --model-type linear
+
+      - name: Run score.py help
+        run: python -m housepred.score --help
+
+      - name: Run score.py
+        run: python -m housepred.score --model-path models/housepred.pkl --data-path data/housing.csv --output-path results/predictions.txt
