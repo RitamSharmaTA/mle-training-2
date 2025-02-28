@@ -52,6 +52,7 @@ jobs:
         run: python -m pytest tests/ -v
 
   build:
+    needs: unit-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
