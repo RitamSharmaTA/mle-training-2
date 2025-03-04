@@ -10,12 +10,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import StratifiedShuffleSplit
 
+from housepred.logger import setup_logging
+
 
 def preprocess_features(data, imputer=None):
     """
     Preprocesses features for both training and test datasets,
-      including feature engineering
-    and imputation of missing values.
+    including feature engineering and imputation of missing values.
 
     Parameters
     ----------
@@ -30,15 +31,19 @@ def preprocess_features(data, imputer=None):
     pandas.DataFrame
         A DataFrame with the preprocessed numeric features.
     """
-    # Feature engineering
+    logger = logging.getLogger(__name__)
+    logger.info("Performing feature engineering.")
+
     data["rooms_per_household"] = data["total_rooms"] / data["households"]
     data["bedrooms_per_room"] = data["total_bedrooms"] / data["total_rooms"]
     data["population_per_household"] = data["population"] / data["households"]
 
-    # Select numeric features and impute missing values
     housing_num = data.select_dtypes(include=[np.number])
+
     if imputer:
         housing_num = imputer.transform(housing_num)
+        logger.info("Applied imputation to missing values.")
+
     housing_num = pd.DataFrame(
         housing_num,
         columns=data.select_dtypes(include=[np.number]).columns,
@@ -65,10 +70,8 @@ def score_model(model_path, data_path, output_path):
     Returns
     -------
     None
-        This function does not return anything;
-        it saves the RMSE results to the output file.
+        Saves the RMSE results to the output file.
     """
-    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     logger.info("Loading model...")
@@ -89,7 +92,8 @@ def score_model(model_path, data_path, output_path):
         strat_test_set = housing.loc[test_index]
 
     # Data preparation
-    housing = strat_test_set.drop("median_house_value", axis=1)
+    housing = strat_test_set.drop(["median_house_value", "income_cat"], axis=1)
+
     housing_labels = strat_test_set["median_house_value"].copy()
 
     imputer = SimpleImputer(strategy="median")
@@ -106,9 +110,11 @@ def score_model(model_path, data_path, output_path):
     mse = mean_squared_error(housing_labels, predictions)
     rmse = np.sqrt(mse)
     logger.info(f"Root Mean Squared Error: {rmse}")
+
     mlflow.log_metric("test_rmse", rmse)
     r2 = r2_score(housing_labels, predictions)
     mae = mean_absolute_error(housing_labels, predictions)
+
     mlflow.log_metric("test_r2", r2)
     mlflow.log_metric("test_mae", mae)
 
@@ -116,6 +122,7 @@ def score_model(model_path, data_path, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w") as f:
         f.write(f"Root Mean Squared Error: {rmse}\n")
+
     logger.info("Scoring completed.")
     mlflow.log_artifact(output_path)
 
@@ -130,9 +137,6 @@ def cli():
     Returns
     -------
     None
-        This function does not return anything.
-        It handles the command-line interface and
-        invokes scoring logic.
     """
     parser = argparse.ArgumentParser(description="Score the model.")
     parser.add_argument("--model-path", type=str, required=True, help="Model path")
@@ -143,19 +147,17 @@ def cli():
     parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     parser.add_argument("--log-path", type=str, help="Log file path")
     parser.add_argument(
-        "--no-console-log", action="store_true", help="Toggle console logging"
+        "--no-console-log",
+        action="store_true",
+        help="Disable console logging",
     )
     args = parser.parse_args()
 
-    if args.log_path:
-        logging.basicConfig(filename=args.log_path, level=args.log_level)
-    else:
-        logging.basicConfig(level=args.log_level)
-
-    if not args.no_console_log:
-        console = logging.StreamHandler()
-        console.setLevel(args.log_level)
-        logging.getLogger().addHandler(console)
+    setup_logging(
+        log_level=args.log_level,
+        log_path=args.log_path,
+        no_console_log=args.no_console_log,
+    )
 
     score_model(args.model_path, args.data_path, args.output_path)
 
