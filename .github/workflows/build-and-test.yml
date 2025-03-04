@@ -9,6 +9,7 @@ on:
       - enh/3/refactor-code
       - enh/5/unit-test
       - enh/7/modular
+      - enh/9/log
   pull_request:
     branches:
       - main
@@ -112,22 +113,22 @@ jobs:
         run: pip install dist/*.whl
 
       - name: Create data directory
-        run: mkdir -p data models results
+        run: mkdir -p data models results logs
 
       - name: Run ingest_data.py help
         run: python -m housepred.ingest_data --help
 
       - name: Run ingest_data.py
-        run: python -m housepred.ingest_data --output-path data
+        run: python -m housepred.ingest_data --output-path data --log-path logs/ingest_data.log --log-level INFO
 
       - name: Run train.py help
         run: python -m housepred.train --help
 
       - name: Run train.py
-        run: python -m housepred.train --input-path data/housing.csv --output-path models/housepred.pkl --model-type linear
+        run: python -m housepred.train --input-path data/housing.csv --output-path models/housepred.pkl --model-type linear --log-path logs/train.log --log-level INFO
 
       - name: Run score.py help
         run: python -m housepred.score --help
 
       - name: Run score.py
-        run: python -m housepred.score --model-path models/housepred.pkl --data-path data/housing.csv --output-path results/predictions.txt
+        run: python -m housepred.score --model-path models/housepred.pkl --data-path data/housing.csv --output-path results/predictions.txt --log-path logs/score.log --log-level INFO
