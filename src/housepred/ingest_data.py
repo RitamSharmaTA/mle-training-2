@@ -8,6 +8,8 @@ from six.moves import urllib
 
 from housepred.logger import setup_logging
 
+logger = logging.getLogger("script")
+
 
 def fetch_housing_data(housing_url, housing_path):
     """

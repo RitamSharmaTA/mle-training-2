@@ -15,6 +15,8 @@ from sklearn.tree import DecisionTreeRegressor
 
 from housepred.logger import setup_logging
 
+logger = logging.getLogger("script")
+
 
 def train_model(input_path, output_path, model_type):
     """

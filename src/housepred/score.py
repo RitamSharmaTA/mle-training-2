@@ -12,6 +12,8 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 from housepred.logger import setup_logging
 
+logger = logging.getLogger("script")
+
 
 def preprocess_features(data, imputer=None):
     """
