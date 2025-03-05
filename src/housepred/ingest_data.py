@@ -8,8 +8,6 @@ from six.moves import urllib
 
 from housepred.logger import setup_logging
 
-logger = logging.getLogger("script")
-
 
 def fetch_housing_data(housing_url, housing_path):
     """
@@ -101,10 +99,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # Debug statements to verify logging setup
+    print(f"Log Level: {args.log_level}")
+    print(f"Log Path: {args.log_path}")
+    print(f"No Console Log: {args.no_console_log}")
+
     setup_logging(
         log_level=args.log_level,
         log_path=args.log_path,
         no_console_log=args.no_console_log,
     )
+    logger = logging.getLogger(__name__)
+    logger.info("Starting model ingest...")
 
     main(args.output_path)

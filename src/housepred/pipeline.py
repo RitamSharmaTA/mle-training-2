@@ -9,8 +9,6 @@ from housepred.logger import setup_logging
 from housepred.score import score_model
 from housepred.train import train_model
 
-logger = logging.getLogger("script")
-
 
 def run_pipeline(input_path, model_path, output_path, model_type):
     logging.info("Starting pipeline...")

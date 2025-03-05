@@ -1,29 +1,30 @@
 import logging
+import sys
 
 
 def setup_logging(log_level="INFO", log_path=None, no_console_log=False):
-    """
-    Configures logging globally for the entire application.
-    """
-    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+
+    log_format = "%(asctime)s - %(levelname)s - %(filename)s - %(message)s"
+
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     log_handlers = []
 
+    print(f"Setting up logging with level: {log_level}")
+
     if log_path:
-        file_handler = logging.FileHandler(log_path)
+        file_handler = logging.FileHandler(log_path, mode="w")  # Overwrites log file
         file_handler.setFormatter(logging.Formatter(log_format))
         log_handlers.append(file_handler)
 
-    if not no_console_log:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter(log_format))
-        log_handlers.append(console_handler)
+    # Console logging (GitHub Actions terminal)
+    console_handler = logging.StreamHandler(sys.stdout)  # Ensure logs go to stdout
+    console_handler.setFormatter(logging.Formatter(log_format))
+    log_handlers.append(console_handler)
 
-    logger = logging.getLogger("script")
-    logger.setLevel(log_level.upper())
+    logging.basicConfig(
+        level=log_level.upper(), handlers=log_handlers, format=log_format
+    )
 
-    logger.handlers.clear()
-
-    for handler in log_handlers:
-        logger.addHandler(handler)
-
-    logger.propagate = False
+    logging.getLogger().info("Logging configured successfully")

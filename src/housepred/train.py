@@ -15,8 +15,6 @@ from sklearn.tree import DecisionTreeRegressor
 
 from housepred.logger import setup_logging
 
-logger = logging.getLogger("script")
-
 
 def train_model(input_path, output_path, model_type):
     """
@@ -32,6 +30,7 @@ def train_model(input_path, output_path, model_type):
         The type of model to train. Options are: "linear", "tree", "forest".
     """
     logger = logging.getLogger(__name__)
+    logger.info("Starting model training...")
     logger.info("Loading data...")
     housing = pd.read_csv(input_path)
     mlflow.log_param("dataset_size", len(housing))
@@ -114,7 +113,6 @@ def cli():
         help="Disable console logging",
     )
     args = parser.parse_args()
-
     setup_logging(
         log_level=args.log_level,
         log_path=args.log_path,

@@ -12,8 +12,6 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 from housepred.logger import setup_logging
 
-logger = logging.getLogger("script")
-
 
 def preprocess_features(data, imputer=None):
     """
@@ -160,7 +158,8 @@ def cli():
         log_path=args.log_path,
         no_console_log=args.no_console_log,
     )
-
+    logger = logging.getLogger(__name__)
+    logger.info("Starting model scoring...")
     score_model(args.model_path, args.data_path, args.output_path)
 
 
