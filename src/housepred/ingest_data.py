@@ -6,6 +6,8 @@ import tarfile
 import pandas as pd
 from six.moves import urllib
 
+from housepred.logger import setup_logging
+
 
 def fetch_housing_data(housing_url, housing_path):
     """
@@ -23,12 +25,16 @@ def fetch_housing_data(housing_url, housing_path):
     None
         This function does not return anything, it just saves and extracts the data.
     """
+    logger = logging.getLogger(__name__)
     os.makedirs(housing_path, exist_ok=True)
     tgz_path = os.path.join(housing_path, "housing.tgz")
+    logger.info(f"Downloading data from {housing_url} to {tgz_path}...")
     urllib.request.urlretrieve(housing_url, tgz_path)
+    logger.info("Extracting data...")
     housing_tgz = tarfile.open(tgz_path)
     housing_tgz.extractall(path=housing_path)
     housing_tgz.close()
+    logger.info("Data extraction complete.")
 
 
 def load_housing_data(housing_path):
@@ -46,10 +52,12 @@ def load_housing_data(housing_path):
         A DataFrame containing the housing data from the CSV file.
     """
     csv_path = os.path.join(housing_path, "housing.csv")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading data from {csv_path}...")
     return pd.read_csv(csv_path)
 
 
-def main(output_path="data"):  # Add default value
+def main(output_path="data"):
     """
     Main function to fetch and load the housing data.
 
@@ -57,23 +65,20 @@ def main(output_path="data"):  # Add default value
     ----------
     output_path : str, optional
         The directory where the data should be saved and extracted.
-         The default is "data".
+        The default is "data".
 
     Returns
     -------
     None
         This function does not return anything, it just fetches and loads the data.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)  # Fix the name reference
+    logger = logging.getLogger(__name__)
     logger.info("Fetching housing data...")
-
     HOUSING_URL = (
         "https://raw.githubusercontent.com/ageron/handson-ml2/master/"
-        "datasets/housing/housing.tgz"  # Add this URL
+        "datasets/housing/housing.tgz"
     )
-
-    fetch_housing_data(HOUSING_URL, output_path)  # Fix the function call
+    fetch_housing_data(HOUSING_URL, output_path)
     logger.info("Data fetched successfully.")
 
 
@@ -88,18 +93,23 @@ if __name__ == "__main__":
     parser.add_argument("--log-level", type=str, default="INFO", help="Log level")
     parser.add_argument("--log-path", type=str, help="Log file path")
     parser.add_argument(
-        "--no-console-log", action="store_true", help="Toggle console logging"
+        "--no-console-log",
+        action="store_true",
+        help="Disable console logging",
     )
     args = parser.parse_args()
 
-    if args.log_path:
-        logging.basicConfig(filename=args.log_path, level=args.log_level)
-    else:
-        logging.basicConfig(level=args.log_level)
+    # Debug statements to verify logging setup
+    print(f"Log Level: {args.log_level}")
+    print(f"Log Path: {args.log_path}")
+    print(f"No Console Log: {args.no_console_log}")
 
-    if not args.no_console_log:
-        console = logging.StreamHandler()
-        console.setLevel(args.log_level)
-        logging.getLogger().addHandler(console)
+    setup_logging(
+        log_level=args.log_level,
+        log_path=args.log_path,
+        no_console_log=args.no_console_log,
+    )
+    logger = logging.getLogger(__name__)
+    logger.info("Starting model ingest...")
 
     main(args.output_path)
