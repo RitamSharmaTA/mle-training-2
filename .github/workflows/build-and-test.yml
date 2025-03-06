@@ -10,6 +10,7 @@ on:
       - enh/5/unit-test
       - enh/7/modular
       - enh/9/log
+      - enh/11/docs
   pull_request:
     branches:
       - main
@@ -40,6 +41,7 @@ jobs:
           pip install -e .
           pip install pytest isort flake8 black
 
+
       - name: Run isort check
         run: isort . --check --profile black
 
@@ -51,6 +53,48 @@ jobs:
 
       - name: Run unit tests
         run: python -m pytest tests/ -v
+
+  build-docs:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: 3.8
+
+      - name: Install Tree CLI
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Display directory structure before building docs
+        run: |
+          echo "Directory structure before building docs:"
+          tree -L 3 .
+
+      - name: Install package and documentation dependencies
+        run: |
+          conda install pip
+          pip install -e .
+          pip install sphinx sphinx-autodoc-typehints
+
+      - name: Build documentation
+        run: |
+          cd docs
+          make html
+
+      - name: Display directory structure after building docs
+        run: |
+          echo "Directory structure after building docs:"
+          tree -L 3 .
+
+      - name: Archive documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-html
+          path: docs/build/html/
 
   build:
     needs: unit-test
